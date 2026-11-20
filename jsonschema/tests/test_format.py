@@ -6,7 +6,7 @@ from unittest import TestCase
 
 from jsonschema import FormatChecker, ValidationError
 from jsonschema.exceptions import FormatError
-from jsonschema.validators import Draft4Validator
+from jsonschema.validators import Draft4Validator, Draft202012Validator
 
 BOOM = ValueError("Boom!")
 BANG = ZeroDivisionError("Bang!")
@@ -89,3 +89,19 @@ class TestFormatChecker(TestCase):
             repr(checker),
             "<FormatChecker checkers=['bar', 'baz', 'foo']>",
         )
+
+
+class TestDurationFormat(TestCase):
+    def test_overflowing_duration_is_reported_as_invalid(self):
+        if "duration" not in FormatChecker.checkers:
+            self.skipTest("isoduration is not installed")
+
+        validator = Draft202012Validator(
+            {"type": "string", "format": "duration"},
+            format_checker=FormatChecker(),
+        )
+
+        errors = list(validator.iter_errors("P1E1000000D"))
+
+        self.assertEqual(len(errors), 1)
+        self.assertEqual(errors[0].validator, "format")

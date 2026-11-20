@@ -4,6 +4,7 @@ from collections.abc import Callable, Iterable
 from contextlib import suppress
 from datetime import date, datetime
 from uuid import UUID
+import decimal
 import ipaddress
 import re
 import string
@@ -523,7 +524,7 @@ with suppress(ImportError):
     @_checks_drafts(
         draft201909="duration",
         draft202012="duration",
-        raises=isoduration.DurationParsingException,
+        raises=(isoduration.DurationParsingException, decimal.DecimalException),
     )
     def is_duration(instance: object) -> bool:
         if not isinstance(instance, str):
